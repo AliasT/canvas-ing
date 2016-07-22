@@ -15,9 +15,10 @@ export default class Stage {
   }
 
   update () {
+    this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height)
     for (let child of this.children) {
       // debugger
-      child.render()
+      child.clear().render()
       this._ctx.drawImage(child._canvas, 0, 0)    // 这里的两个参数是和儿子的transform对应起来的
     }
   }

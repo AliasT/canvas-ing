@@ -21,8 +21,8 @@ export default class Text extends Shape {
     this._ctx    = this._canvas.getContext('2d')
   }
   _setText () {
-    this._ctx.textAlign               = this.textAlign
-    this._ctx.textBaseline            = this.textBaseline
+    this._ctx.textAlign              = this.textAlign
+    this._ctx.textBaseline           = this.textBaseline
     this._ctx.font                   = this.font
     this._ctx[this.method + "Style"] = this.color
 
@@ -34,7 +34,6 @@ export default class Text extends Shape {
 
   render () {
     this._setText()
-    debugger
     this._ctx[this.method + "Text"](this.text, this.x, this.y)
     // this._ctx.restore()
   }
