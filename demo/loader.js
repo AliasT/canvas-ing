@@ -1,9 +1,7 @@
 import tick from "../src/tick"
 
 var canvas = document.querySelector('#canvas')
-
 var stage = new createjs.Stage(canvas)
-
 var container = new createjs.Container()
 
 container.x = 150
