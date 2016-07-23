@@ -2,7 +2,7 @@ var path = require("path");
 var htmlPlugin = require('html-webpack-plugin')
 module.exports = {
   entry: {
-    app: "./demo/follow.js"
+    app: "./demo/move-1.js"
   },
   output: {
     path: path.resolve(__dirname, './build'),
