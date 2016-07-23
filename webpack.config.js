@@ -1,10 +1,11 @@
 var path = require("path");
+var htmlPlugin = require('html-webpack-plugin')
 module.exports = {
   entry: {
-    app: "./demo/shape-demo.js"
+    app: "./demo/loader.js"
   },
   output: {
-    path: path.resolve(__dirname, './assets'),
+    path: path.resolve(__dirname, './build'),
     filename: "[name].js"
   },
   reslove: {
@@ -15,5 +16,16 @@ module.exports = {
       { test: /(\.js)|(\.jsx)$/, exclude: /node_modules/, loader: "babel"  },
       { test: /\.scss$/, loaders: ["style", "css", "sass"]}
     ]
-  }
+  },
+
+  plugins: [
+    new htmlPlugin({
+      filename: "drawing-arc.html",
+      inject: true,
+      minify: {
+        minifyJs: true,
+        hash: true
+      }
+    })
+  ]
 };
