@@ -1,4 +1,3 @@
-
   let canvas = document.querySelector('#canvas')
   var ctx    = canvas.getContext('2d')
 
@@ -10,11 +9,13 @@
 
 
   const pa = {
-    x: 100,
-    y: 200
+    x: 500,
+    y: 200,
+    radius: 50
   }
 
   var pb = {
+    radius: 30,
     setPos (x, y) {
       this.x = x
       this.y = y
@@ -26,7 +27,7 @@
     const relY = pb.y - pa.y
     const relX = pb.x - pa.x
 
-    return Math.atan2(relY, relX)
+    return - Math.atan2(relY, relX)
   }
 
   function getMid (pa, pb) {
@@ -39,7 +40,7 @@
   function drawCircle (o, color) {
     ctx.beginPath()
     ctx.fillStyle = color
-    ctx.arc(o.x, o.y, radius, 0, PI2)
+    ctx.arc(o.x, o.y, o.radius, 0, PI2)
     ctx.fill()
   }
 
@@ -49,15 +50,47 @@
     return Math.sqrt(disX + disY)
   }
 
-  function getC (center, h) {
-    return {
-      top: center.y + h,
-      bottom: center.y - h
-    }
-  }
 
   function getR (h, halfDis) {
     return Math.sqrt(Math.pow(h, 2) + Math.pow(halfDis, 2))
+  }
+
+  function pow (n) {
+    return function (x) {
+      return Math.pow(x, n)
+    }
+  }
+
+  var pow2 = pow(2)
+
+  function get (p) {
+    return p >= 1 ? 1 : p
+  }
+
+  // 外切圆到轴线的垂直高度
+  function getOuter (pa, pb, r0) {
+    const d1  = pa.radius + r0
+    const d2  = pb.radius + r0
+    const dis = getDis(pa, pb)
+
+
+    var a = (pow2(d1) + pow2(dis) - pow2(d2)) / ( 2 * d1 * dis)
+    var b = (pow2(d2) + pow2(dis) - pow2(d1)) / ( 2 * dis * d2)
+    var c = (pow2(d1) + pow2(d2) - pow2(dis)) / ( 2 * d1 * d2)
+
+    a = get(a)
+    b = get(b)
+    c = get(c)
+
+    const sina  = Math.sqrt(1 - pow2(a))
+
+    return {
+      h: d1 * sina,
+      x: d1 * a,
+      a: Math.acos(a),
+      b: Math.acos(b),
+      c: Math.acos(c)
+    }
   }
 
   function mousemove (e) {
@@ -70,52 +103,45 @@
     draw()
   }
 
-  const h   = 200
+  const r0 = 300
 
   function draw () {
     drawCircle(pa, 'blueviolet')
     drawCircle(pb)
 
-    const r = getTransformX(pa, pb)
+    const r     = getTransformX(pa, pb)
+    const outer = getOuter(pa, pb, r0)
 
+    const h     = outer.h
+    const angle = outer.c
+    // const angle = PI2
     ctx.save()
-
-    const mid = getMid(pa, pb)
-    const dis = getDis(pa, pb)
-
-    // 外切圆到两个圆心距离
-    const Dis = getR(h, dis/2)
-
-    const c     = getC(mid, h)
-    const angle = Math.acos(h/Dis)
-
-    ctx.translate(mid.x, mid.y)
-    ctx.rotate(r)
-
-    const rc = Dis - radius
-    if (rc >= h ) {
+    if (h <= r0) {
       ctx.restore()
       return
     }
-
+    // 上下文转移到轴线位置上
+    ctx.translate(pa.x, pa.y)
+    ctx.rotate(-r)
+    ctx.translate(outer.x, 0)
     ctx.strokeStyle = 'green'
     ctx.save()
+
+
     ctx.beginPath()
 
-    ctx.transform(1, 0, 0, 1, 0, -h)
-    ctx.rotate(Math.PI / 2 - angle)
-    ctx.arc(0, 0, rc, 0, 2 * angle, false)
-    ctx.restore()
+    ctx.translate(0, -h)
+    ctx.rotate(outer.b)
+    ctx.arc(0, 0, r0, 0, angle, false)
 
-    // ctx.beginPath()
-    ctx.transform(1, 0, 0, 1, 0, h)
-    ctx.rotate(- Math.PI / 2 - angle)
-    ctx.arc(0, 0, rc, 0, 2 * angle, false)
+    ctx.restore()
+    ctx.translate(0, h)
+    ctx.rotate(- outer.b - outer.c)
+    ctx.arc(0, 0, r0, 0, angle, false)
     ctx.fill()
 
     ctx.restore()
     ctx.restore()
   }
-
 
   canvas.addEventListener('mousemove', mousemove)

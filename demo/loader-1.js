@@ -49,7 +49,7 @@ class Loader extends Shape {
     this.graphics.clear()
     // debugger
     this.graphics.beginStroke(this.color).setStrokeStyle(8, 'round').arc(0, 0, this.radius, start, end, false)
-    this.rotation += 2
+    this.rotation += 1
   }
 }
 
