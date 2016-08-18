@@ -10,6 +10,6 @@
 
   ![](gifs/pull.gif)
 
-- [挣脱效果](#)
+- [挣脱效果](http://codepen.io/AliasT/pen/wWObvK)
 
   ![](gifs/pin.gif)
