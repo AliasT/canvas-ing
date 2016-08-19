@@ -23,7 +23,7 @@
       }
     }
 
-    var t = getTick(0, 360, 3000, e)
+    var t = getTick(0, 360, 4000, e)
 
     const center = {
       x: 250,
@@ -102,10 +102,10 @@
         rotate = t(Date.now())
 
         const a = Math.sin(getAngle(rotate))
-        initialLen = 200 * a
+        initialLen = 200 - Math.abs(200 * a)
 
-        const b = Math.sin(getAngle(rotate - 90))
-        offset     = 60 + b * 10
+        const b = Math.sin(getAngle(rotate))
+        offset     = 70 + b * 20
 
         this.draw()
         requestAnimationFrame(() => this.update())
