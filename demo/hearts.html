@@ -1,0 +1,276 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <style>
+    canvas {
+      transform: rotateZ(0);
+    }
+
+    canvas.rotate {
+      transform: rotateZ(-45deg);
+      transition: all 1s;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="500" height="500"></canvas>
+
+  <script>
+      
+    var canvas = document.querySelector('#canvas')
+    var ctx = canvas.getContext('2d')
+
+    const L  = 80  // 1/2 边长
+    const L2 = L * 2
+
+    const center = {
+      x: canvas.width / 2,
+      y: canvas.height / 2
+    }
+
+    const A = {
+      x: center.x - L,
+      y: center.y - L
+    }
+
+    const B = {
+      x: center.x - L,
+      y: center.y + L
+    }
+
+    const C = {
+      x: center.x + L,
+      y: center.y + L
+    }
+
+    const D = {
+      x: center.x + L,
+      y: center.y - L
+    }
+
+    var start = {
+      x: A.x,
+      y: A.y
+    }
+
+    var end = {
+      x: A.x,
+      y: A.y
+    }
+
+    var points = []
+
+    var m = A
+    var n = B
+    
+    var d   = 0
+    const v = 10
+
+    function getCanvas () {
+      return document.createElement('canvas')
+    }
+
+    function getCtx (c) {
+      return c.getContext('2d')
+    }
+
+    var square    = getCanvas()
+    var squareCtx = getCtx(square)
+    square.width  = 2 * L
+    square.height = 2 * L
+
+
+    ctx.strokeStyle = "#ddd"
+
+
+    function drawSquare () {
+      ctx.beginPath()
+      ctx.lineWidth =1
+      ctx.lineJoin = "round"
+      ctx.lineCap = "butt"
+      ctx.moveTo(start.x, start.y)
+      ctx.lineTo(end.x, end.y)
+      ctx.stroke()
+      
+
+      start.x = end.x
+      start.y = end.y
+      d += v
+
+      if (d <= L * 2 ) {
+        end.y += v
+      } else if (d <= L * 4) {
+        end.x += v
+      } else if (d <= L * 6) {
+        end.y -= v
+      } else if (d <= L * 8) {
+        end.x -= v
+      } else {
+        squareCtx.drawImage(canvas, A.x, A.y, L2, L2, 0, 0, square.width, square.height)
+        drawCircle()
+        return
+      }
+
+      requestAnimationFrame(drawSquare)
+    }
+
+    var t         = 0
+    var circle    = getCanvas()
+    var circleCtx = getCtx(circle)
+
+    circle.width  = 2 * L
+    circle.height = 2 * L
+
+    circleCtx.strokeStyle = ctx.strokeStyle
+
+
+    function drawCircle () {
+      t += 4
+      circleCtx.save()
+      circleCtx.beginPath()
+      circleCtx.clearRect(0, 0, circle.width, circle.height)
+      circleCtx.translate(L, L)
+      circleCtx.arc(0, 0, L-1, 0, t / 180 * Math.PI, false)
+      circleCtx.stroke()
+      circleCtx.restore()
+      
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(square, A.x, A.y, square.width, square.height)
+      ctx.drawImage(circle, A.x, A.y, circle.width, circle.height)
+
+      if (t >= 360) {
+        drawOffsetCircle()
+        return 
+      }
+
+      requestAnimationFrame(drawCircle)
+    }
+
+    var tx = A.x
+    var ty = A.y
+    var v3 = 1
+
+    function drawOffsetCircle () {
+      tx += v3
+      ty -= v3
+      ctx.clearRect(0, 0, canvas.width, canvas.height)
+      ctx.drawImage(square, A.x, A.y, square.width, square.height)
+      ctx.drawImage(circle, A.x, ty, square.width, square.height)
+      ctx.drawImage(circle, tx, A.y, square.width, square.height)
+
+      start.x = 0
+      start.y = -L
+
+      end.x = 0
+      end.y = -L
+
+      ctx.strokeStyle = "#E21A39"
+      if (tx >= A.x + L) {
+        document.querySelector('#canvas').className="rotate"
+        setTimeout(function () {
+          heart()
+        }, 1000)
+        return 
+      }
+      requestAnimationFrame(drawOffsetCircle)
+    }
+
+    var d3 = 0
+    var t3 = 0
+    var v4 = 4
+    var q = 0
+
+    function heart () {
+      
+      if (t3 <= 180) {
+        points.push({ x: end.x + D.x, y: end.y + D.y + L})
+        ctx.save()
+        ctx.translate(D.x, D.y + L)
+        ctx.beginPath()
+        ctx.moveTo(start.x, start.y)
+        t3 += 2
+        let p = - Math.PI / 2 + t3 / 180 * Math.PI
+        end.x = L * Math.cos(p)
+        end.y = L * Math.sin(p)
+        ctx.lineTo(end.x, end.y)
+        start.x = end.x
+        start.y = end.y
+        ctx.stroke()
+        ctx.restore()
+      } else if (d3 <= L * 2) {
+        points.push({ x: end.x, y: end.y})
+        if (q == 0) {
+          start.x = end.x = C.x
+          start.y = end.y = C.y
+          q = 1
+        } else {
+          end.x -= v4
+        }
+        ctx.beginPath()
+        ctx.moveTo(start.x, start.y)
+        ctx.lineTo(end.x, start.y)
+        ctx.stroke()
+        start.x = end.x
+        d3 += v4
+      } else if (d3 <= L * 4) {
+        end.y -= v4
+        d3 += v4
+        points.push({ x: end.x, y: end.y})
+        ctx.beginPath()
+        ctx.moveTo(start.x, start.y)
+        ctx.lineTo(end.x, end.y)
+        ctx.stroke()
+        start.y = end.y
+      } else if (t3 <= 360) {
+        if (q == 1) {
+          start.x = end.x = -L
+          start.y = end.y = 0
+          q = 2
+        } else {
+          t3 += 2
+          points.push({ x: end.x + A.x + L, y: parseInt(end.y + A.y)})
+        }
+        ctx.save()
+        ctx.translate(A.x + L, A.y)
+        ctx.beginPath()
+        ctx.moveTo(start.x, start.y)
+
+        let p = Math.PI + t3 / 180 * Math.PI
+        end.x = - L * Math.cos(p)
+        end.y = - L * Math.sin(p)
+        ctx.lineTo(end.x, end.y)
+        ctx.stroke()
+        start.x = end.x
+        start.y = end.y
+        ctx.restore()
+      } else {
+        let first = points[0]
+        ctx.beginPath()
+        ctx.moveTo(first.x, first.y)
+        
+        let alpha = 0.5
+        setInterval(function () {
+          ctx.fillStyle= `rgba(226, 26, 57, ${alpha})`
+          for (let i = 1, n = points.length; i < n; i++) {
+            ctx.lineTo(points[i].x, points[i].y)
+          }
+          alpha += 0.01
+          ctx.fill()
+        }, 70)
+
+
+        ctx.fill()
+        return 
+      }
+      
+      requestAnimationFrame(heart)
+    }
+    
+    setTimeout(function () {
+      drawSquare()
+    }, 2000)
+
+  </script>
+</body>
+</html>
