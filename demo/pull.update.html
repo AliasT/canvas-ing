@@ -1,0 +1,143 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>下拉刷新</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    canvas {
+      background: blueviolet;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+
+    var canvas = document.querySelector('#canvas')
+    var ctx    = canvas.getContext('2d')
+
+    const w = window.screen.availWidth
+    const h = window.screen.availHeight
+
+
+    const MAX_OFFSET_X = w
+    const MAX_OFFSET_Y = 100
+
+    var rectHeight = 50
+
+    canvas.width  = w
+    canvas.height = h
+
+
+    var ismoving = false
+    var cpx      = w / 2
+    var cpy      = 0
+
+    var tick = null
+    var deviation = 1
+
+    function easing (t) {
+      return Math.pow(t, 2)
+    }
+
+    function getElasticOut (amplitude,period) {
+      var pi2 = Math.PI*2;
+      return function(t) {
+        if (t==0 || t==1) return t;
+        var s = period/pi2 * Math.asin(1/amplitude);
+        return (amplitude*Math.pow(2,-10*t)*Math.sin((t-s)*pi2/period )+1);
+      };
+    }
+
+    var elasticOut = getElasticOut(1.2, 0.6)
+    function draw (cx, cy) {
+      ctx.clearRect(0, 0, w, h)
+      ctx.beginPath()
+      ctx.fillStyle = "#fff"
+
+      ctx.moveTo(0, 0)  // 矩形
+      ctx.lineTo(w, 0)
+      ctx.lineTo(w, rectHeight)
+      ctx.quadraticCurveTo(cx, cy, 0, rectHeight)
+      ctx.lineTo(0, 0)
+      ctx.fill()
+    }
+
+    function getTick (oldProp, targetProp, delay, easingFunc) {
+      var t1 = Date.now()
+
+      return function (t2) {
+        var changed = targetProp - oldProp                    // 属性变化值
+        var ratio   = (t2 - t1) / delay                       // 时长比率
+
+        if (ratio >= 1) { return false }
+
+        var newProp = oldProp + easingFunc(ratio) * changed   // 新的属性
+        return newProp
+      }
+    }
+
+
+    function move () {
+      var p = tick(Date.now())
+      if (typeof p === 'number') {
+        cpy = p1 - p
+        draw(cpx, cpy)
+        requestAnimationFrame(move)
+      } else {
+        ismoving = false
+
+        //
+      }
+    }
+
+    var p1 = 0
+    var p2 = 0
+
+    function set (e) {
+      cpy = e.touches[0].cpy
+      cpx = e.touches[0].cpx
+    }
+
+    function touchstart (e) {
+      p2 = e.touches[0].pageY
+    }
+
+    function touchmove (e) {
+      e.preventDefault()
+      if (ismoving) { return }
+
+      var py = e.touches[0].pageY - p2
+      var t  =  py >= 180 ? 180 : py
+
+      if (t <= 60) {
+        rectHeight = t    // to be changed
+        cpy = t
+      } else if (t >= 60) {
+        cpy = t
+        rectHeight = 60
+      }
+
+      draw(cpx, cpy)
+    }
+
+    function touchend (e) {
+      ismoving = true
+      p1 = cpy
+      tick = getTick(0, cpy - rectHeight, 500, elasticOut)
+      requestAnimationFrame(move)
+    }
+
+    canvas.addEventListener('touchstart', touchstart)
+    canvas.addEventListener('touchmove', touchmove)
+    canvas.addEventListener('touchend', touchend)
+
+  </script>
+</body>
+</html>
