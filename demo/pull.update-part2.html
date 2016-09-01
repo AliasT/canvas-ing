@@ -1,0 +1,66 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>下拉刷新</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    canvas {
+      background: blueviolet;
+    }
+  </style>
+</head>
+<body>
+  <!-- <canvas id="canvas"></canvas> -->
+  <canvas id="canvas2" width="300" height="300"></canvas>
+  <script>
+    var canvas2 = document.querySelector('#canvas2')
+    var ctx2    = canvas2.getContext('2d')
+    class WaterDrop {
+      constructor () {
+        this.radius = 40
+        this.assistRadius = 40
+        this.offset = 60
+        this.dis = 0
+      }
+
+      animate () {
+        requestAnimationFrame(this.draw.bind(this))
+      }
+
+      setOutline (h) {
+
+      }
+
+      draw () {
+        ctx2.clearRect(0, 0, canvas2.width, canvas2.height)
+
+        ctx2.save()
+        ctx2.translate(canvas2.width / 2, 180)
+        const sina = (this.radius - this.dis) / (this.radius + this.assistRadius)
+        const a = Math.asin(sina)
+        console.log(a)
+        ctx2.beginPath()
+        const l = (this.radius + this.assistRadius) * Math.tan(a)
+        ctx2.arc(-l, 0, this.assistRadius,  0, -Math.PI / 2 + a, true)
+        ctx2.arc(0, this.radius - this.dis, this.radius, Math.PI/2 + a, Math.PI/2 - a, false)
+        ctx2.arc(l, 0, this.assistRadius, Math.PI, Math.PI * 3/2 - a, true)
+        ctx2.stroke()
+        this.dis += 1
+        ctx2.restore()
+
+        if (this.dis <= 40)
+          requestAnimationFrame(this.draw.bind(this))
+      }
+    }
+
+    var drop = new WaterDrop()
+    drop.animate()
+  </script>
+
+</body>
+</html>
