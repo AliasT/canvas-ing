@@ -1,0 +1,166 @@
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+  <style>
+    html {
+      font-size: 100px;
+    }
+    html, body, .wrapper {
+      height: 100%;
+      overflow: hidden;
+    }
+    #main {
+      width: 2rem;
+      height: 2rem;
+      border: solid 1px gray;
+      position: relative;
+      margin: .8rem auto;
+      -webkit-user-select: none;
+      overflow: hidden;
+    }
+    
+    #rotate {
+      height: 100%;
+      z-index: 1000;
+    }
+
+    .container {
+      height: 100%;
+      transform-origin: 2rem 2rem;
+      transition: transform 1s ease-out;
+    }
+    .cell {
+      font-size: 12px;
+      width: .4rem;
+      height: .4rem;
+      background: blueviolet;
+      position: absolute;
+      right: 0;
+      top: 0;
+      transform-origin: .4rem 2rem;
+      border-radius: 50%;
+      border: 0;
+      line-height: .4rem;
+      text-align: center;
+      color: #fff;
+    }
+
+    .clearfix:after {
+      content: '';
+      display: block;
+      clear: both;
+    }
+  </style>
+
+</head>
+<body>
+  <div class="wrapper">
+    <div id="main">
+      <div id="rotate">
+        <div class="container">
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+          <div class="cell"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
+  <script type="text/javascript">
+    var cells = document.querySelectorAll('.cell')
+
+    
+    for (var i = 0, n = cells.length; i < n; i++) {
+      var cell = cells[i]
+      cell.innerHTML = i
+      cell.style.transform = `rotateZ(-${(i)*20}deg)`
+
+    }
+
+    function move () {
+      var start = {}
+      var end = {}
+      var max = 30
+      var deviation = 0
+
+      var rotateEle = document.querySelector('#rotate')
+      var container = document.querySelector('.container')
+      var wrapper   = document.querySelector('.wrapper')
+      var bounding = rotateEle.getBoundingClientRect()
+
+      setRotateZ(container, 0)
+
+      rotateEle.addEventListener('touchstart', touchstart)
+      rotateEle.addEventListener('touchmove', touchmove)
+
+      function touchmove (e) {
+        e.preventDefault()
+        e.stopPropagation()
+        setEnd(e.touches[0])
+        // var angle = Math.atan2(end.y - start.y, end.x - start.x) 
+        var angle = (end.x - start.x) / 200 * 90 
+
+        start.x = end.x
+        start.y = end.y
+        var temp = +container.style.transform.match(/-?[\.\d]+/)[0] 
+        
+
+        var r = (angle + temp) % 360
+        console.log(r)
+
+        var bigger
+        if (r > 0 && r >= max) {
+          r = max + 15
+          deviation = 15
+          bigger = true
+        } else if (r < 0 && r <= -15) {
+          r = -15
+          bigger = true
+          deviation = -15
+        }
+        setRotateZ(container, r)
+
+        if (bigger) {
+          setTimeout(function () {
+            setRotateZ(container, r-deviation)
+          }, 300)
+        }
+      }
+
+      function touchstart (e) {
+         e.stopPropagation()
+        setStart(e.touches[0])
+        setEnd(e.touches[0])
+      }
+
+      function setRotateZ (ele, angle) {
+        ele.style.transform = `rotateZ(${angle}deg)`
+      }
+
+      function setStart (touch) {
+        start.x = touch.pageX - bounding.left
+        start.y = touch.pageY - bounding.top
+      }
+
+      function setEnd (touch) {
+        end.x = touch.pageX - bounding.left
+        end.y = touch.pageY - bounding.top
+      }
+    }
+
+    move()
+  </script>
+
+</body>
+</html>
